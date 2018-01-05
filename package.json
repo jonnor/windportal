@@ -1,0 +1,27 @@
+{
+  "name": "windportal",
+  "version": "0.0.0",
+  "description": "Installation showing how the wind feels in a different location in the world.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "microflo generate --components ./node_modules/microflo-core/components --components ./node_modules/microflo-arduino/components --target=arduino graphs/windportal.fbp build/windportal.ino",
+    "start": "microflo runtime --wait-connect 3 --graph graphs/windportal.fbp --componentmap build/windportal.component.map.json",
+    "build": "`node build.js`"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonnor/windportal.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jonnor/windportal/issues"
+  },
+  "homepage": "https://github.com/jonnor/windportal#readme",
+  "devDependencies": {
+    "microflo": "^0.6.0",
+    "microflo-arduino": "^0.6.2",
+    "microflo-core": "^0.6.1"
+  }
+}
