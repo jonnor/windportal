@@ -53,7 +53,7 @@ def main():
         'old-st-peters-church': { 'lat': 57.504102, 'lon': -1.789955 },
         'buchannes-lighthouse': { 'lat': 57.470447, 'lon': -1.774126 },
         'st-fergus-beach': { 'lat': 57.5599672, 'lon': -1.8152256 },
-        'peterhead': { 'q': 'Peterhead' },
+        'peterhead': { 'q': 'Peterhead,GB' },
     }
 
     location_info = locations[location_name]
