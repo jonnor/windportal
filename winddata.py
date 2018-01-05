@@ -22,8 +22,8 @@ def download_current(api_token, **kwargs):
 def extract_wind(weather):
     assert len(weather['weather']) == 1, 'multiple weather reports'
     flat = {
-        'windspeed': weather['wind']['speed'],
-        'winddirection': weather['wind']['deg'],
+        'windspeed': weather['wind'].get('speed'),
+        'winddirection': weather['wind'].get('deg'),
         'timestamp': weather['dt'],
         'longitude': weather['coord']['lon'],
         'latitude': weather['coord']['lat']
@@ -40,7 +40,7 @@ def main():
     if len(sys.argv) > 1:
         location_name = sys.argv[1]
 
-    timeinterval = 10*3600
+    timeinterval = 10*60
     if len(sys.argv) > 2:
         timeinterval = int(sys.argv[2])    
 
