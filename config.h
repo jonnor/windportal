@@ -2,6 +2,7 @@
 #define HAVE_ADAFRUIT_WS2801
 
 #if 0
+// FIXME: makes sketch to big on Arduino Leonardo
 #include <ArduinoHttpClient.h>
 #define HAVE_ARDUINO_HTTP
 #define TINY_GSM_MODEM_SIM800

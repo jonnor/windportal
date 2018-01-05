@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/jonnor/windportal#readme",
   "devDependencies": {
-    "microflo": "^0.6.0",
+    "microflo": "^0.6.1",
     "microflo-arduino": "^0.6.2",
     "microflo-core": "^0.6.1"
   }
