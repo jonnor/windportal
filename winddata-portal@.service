@@ -1,0 +1,14 @@
+[Service]
+ExecStart=/usr/bin/python3 winddata.py %i 500
+WorkingDirectory=/home/jon/windportal
+Restart=always
+RestartSec=60
+User=jon
+Group=jon
+EnvironmentFile=/etc/windportal.env
+
+[Unit]
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
