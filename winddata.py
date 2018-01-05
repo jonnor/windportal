@@ -70,6 +70,7 @@ def main():
             wind = extract_wind(weather)
             print('extracted:', wind)
             writer.writerow(wind)
+            csvfile.flush() # ensure data hits disk regularly
 
             gevent.sleep(timeinterval)
 
