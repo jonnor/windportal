@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate": "microflo generate --components ./node_modules/microflo-core/components --components ./node_modules/microflo-arduino/components --target=arduino --prepend-file config.h graphs/windportal.fbp build/windportal.ino",
+    "generate": "microflo generate --components ./node_modules/microflo-core/components --components ./node_modules/microflo-arduino/components --ignore-component LedChainNeoPixel --target=arduino --prepend-file config.h graphs/windportal.fbp build/windportal.ino",
     "start": "microflo runtime --id 9b1bbef9-100b-4f08-b59f-eef1e10f0a32 --graph graphs/windportal.fbp --componentmap build/windportal.component.map.json",
     "build": "`node build.js ./build/windportal.ino`"
   },

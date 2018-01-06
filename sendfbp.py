@@ -41,7 +41,7 @@ def wind_sequence(path):
     for data in df.itertuples():
         _, timestamp, speed = data[:3]
         t = map_linear(timestamp, start, end, 0, desiredtime)
-        v = map_linear(speed, 2.0, 4.2, 0, 100)
+        v = map_linear(speed, 2.0, 4.2, 0, 60)
         #print('t', timestamp, t, speed, v)
         events.append((t, v))
     return events
@@ -52,7 +52,7 @@ def main():
     ws = websocket.create_connection("ws://localhost:3569")
 
     graph = 'default/main'
-    inport = 'interval'
+    inport = 'speed'
 
     current_time = 0
     for event in events:
