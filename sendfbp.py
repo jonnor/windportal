@@ -41,7 +41,7 @@ def wind_sequence(path):
     for data in df.itertuples():
         _, timestamp, speed = data[:3]
         t = map_linear(timestamp, start, end, 0, desiredtime)
-        v = map_linear(speed, 2.0, 4.2, 0, 60)
+        v = map_linear(speed, 0.0, 15.0, 0, 24)
         #print('t', timestamp, t, speed, v)
         events.append((t, v))
     return events

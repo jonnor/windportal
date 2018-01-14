@@ -2,28 +2,23 @@
 #ifdef HAVE_ADAFRUIT_NEOPIXEL
 #include <Adafruit_NeoPixel.h>
 
-
 // Fill pixels up to @position
 void
 barGraph(Adafruit_NeoPixel *strip,
-         uint16_t position, uint32_t oncolor, uint32_t offcolor)
+         uint16_t position, uint8_t offset, uint32_t oncolor, uint32_t offcolor)
 {
-  const uint16_t N = strip->numPixels(); 
+  const uint16_t N = strip->numPixels();
 
-#if 1
-  for(uint16_t i=0; i<strip->numPixels(); i++) {
+  for(uint16_t i=offset; i<strip->numPixels(); i++) {
     strip->setPixelColor(i, offcolor);
   }
-  const uint16_t stop = min(position, strip->numPixels());
-  for(uint16_t i=0; i<stop; i++) {
+  const uint16_t stop = min(offset+position, strip->numPixels());
+  for(uint16_t i=offset; i<stop; i++) {
     strip->setPixelColor(i, oncolor);
   }
-#endif
-
-  strip->show();
-
-
 }
+#else
+#warning "Missing Adafrui_NeoPixel"
 #endif
 
 /* microflo_component yaml
@@ -50,7 +45,7 @@ public:
     {
         // TODO: split into two parts, setting up neopixel, and doing the bargraph?
         const int8_t pin = 6;
-        const int8_t leds = 60;
+        const int8_t leds = 48;
 #ifdef HAVE_ADAFRUIT_NEOPIXEL
         strip = Adafruit_NeoPixel(leds, pin, NEO_GRB + NEO_KHZ800);
         oncolor = strip.Color(255,0,0);
@@ -68,7 +63,10 @@ public:
 #ifdef HAVE_ADAFRUIT_NEOPIXEL
             const long before = micros(); 
             Adafruit_NeoPixel *s = &strip;
-            barGraph(s, pos, oncolor, offcolor);
+            const int width = 24; 
+            barGraph(s, pos*2, 0, oncolor, offcolor);
+            barGraph(s, pos*2, width, oncolor, offcolor);
+            s->show();
             const long after = micros();
 #endif
             send(Packet(after-before), OutPorts::out);
