@@ -1,4 +1,4 @@
-#INPORT=bargraph.IN:speed
+INPORT=split.IN:speed
 
 # Liveness
 timer(Timer) -> at(ToggleBoolean) -> aliveled(DigitalWrite)
@@ -19,9 +19,19 @@ timer(Timer) -> at(ToggleBoolean) -> aliveled(DigitalWrite)
 
 timer OUT -> TRIGGER pot
 pot -> IN split(Split)
-split OUT1 -> dutycycle led
-split OUT2 -> servo
+split OUT1 -> mapLed(MapLinear) -> dutycycle led
+split OUT2 -> mapServo(MapLinear) -> servo
 
 # Display
 '2' -> bargraph(LedBarGraph)
 split OUT3 -> bargraph
+#split OUT3 -> mapDisplay(MapLinear) -> bargraph
+
+#'0' -> INMIN mapDisplay, '1023' -> INMAX mapDisplay
+#'0' -> OUTMIN mapDisplay, '12' -> OUTMAX mapDisplay
+
+'0' -> INMIN mapServo, '1023' -> INMAX mapServo
+'0' -> OUTMIN mapServo, '180' -> OUTMAX mapServo
+
+'0' -> INMIN mapLed, '1023' -> INMAX mapLed
+'0' -> OUTMIN mapLed, '100' -> OUTMAX mapLed
