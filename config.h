@@ -1,6 +1,12 @@
 
+#define MICROFLO_NODE_LIMIT 30
+#define MICROFLO_MESSAGE_LIMIT 30
+
 #include <Adafruit_NeoPixel.h>
 #define HAVE_ADAFRUIT_NEOPIXEL
+
+#include <Servo.h>
+#define HAVE_SERVO
 
 #if 0
 // FIXME: makes sketch to big on Arduino Leonardo

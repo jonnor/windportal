@@ -1,8 +1,27 @@
-INPORT=bargraph.IN:speed
+#INPORT=bargraph.IN:speed
 
-timer(Timer) OUT -> IN toggle(ToggleBoolean)
-toggle() OUT -> IN led(DigitalWrite)
-'100' -> INTERVAL timer()
-'13' -> PIN led()
+# Liveness
+timer(Timer) -> at(ToggleBoolean) -> aliveled(DigitalWrite)
+'50' -> INTERVAL timer
+'13' -> PIN aliveled
 
-'12' -> bargraph(LedBarGraph)
+
+# Servo
+'9' -> PIN servo(ServoWrite)
+'180' -> IN servo
+
+'0' -> PIN pot(AnalogRead)
+'11' -> PIN led(PwmWrite)
+
+#'100' -> INTERVAL timer(Timer) OUT -> TRIGGER pot
+# FIXME: multiple timers doesnt work? neither pot nor aliveled updates
+# Might have been due to running out of memory?
+
+timer OUT -> TRIGGER pot
+pot -> IN split(Split)
+split OUT1 -> dutycycle led
+split OUT2 -> servo
+
+# Display
+'2' -> bargraph(LedBarGraph)
+split OUT3 -> bargraph
