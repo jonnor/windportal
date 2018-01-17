@@ -30,28 +30,20 @@ const auto OFF_COLOR = strip.Color(5,5,5);
 
 // TODO: generate
 static const uint16_t speeds[] = {
+    0,
     10,
     0,
     20,
     40,
-    20,
+    70,
     40,
-    10,
+    20,
     90,
+    0,
+    0,
 };
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
 static const uint16_t speed_max = 100;
-
-void setup() {
-    strip.begin();
-    strip.show();
-    strip.setBrightness(255);
-
-    servo.attach(SERVO_PIN);
-    servo.write(0);
-
-    pinMode(LIVE_PIN, OUTPUT);
-}
 
 void set_position(int pos) {
   const auto speed = speeds[pos];
@@ -66,16 +58,36 @@ void set_position(int pos) {
   analogWrite(LIVE_PIN, pwm);
 }
 
+void setup() {
+    strip.begin();
+    strip.show();
+    strip.setBrightness(255);
+
+    servo.attach(SERVO_PIN);
+    servo.write(0);
+
+    pinMode(LIVE_PIN, OUTPUT);
+    pinMode(TRIGGER_PIN, INPUT_PULLUP);
+}
+
 void loop() {
   static int pos = 0;
- 
-  set_position(pos);
-
-  if (pos > speeds_length) {
-    pos = 0;
+  static bool was_pressed = true;
+  static bool playing = false;
+  
+  const bool pressed = !digitalRead(TRIGGER_PIN);
+  if (playing or (pressed and not was_pressed)) {
+      playing = true;
+    
+      if (pos > speeds_length) {
+        pos = 0;
+        playing = false;
+      }
+      set_position(pos);
+      pos += 1;
+      delay(1000);
   }
-  pos += 1;
-  delay(500);
+  was_pressed = pressed;
 }
 
 
