@@ -20,6 +20,7 @@ const int8_t SERVO_PIN = 9;
 const int8_t DISPLAY_PIN = 6;
 const int8_t DISPLAY_LEDS = 24;
 const int8_t LIVE_PIN = 13;
+const int8_t TRIGGER_PIN = 7;
 
 Adafruit_NeoPixel strip(DISPLAY_LEDS, DISPLAY_PIN, NEO_GRB + NEO_KHZ800);
 Servo servo;
@@ -33,7 +34,11 @@ static const uint16_t speeds[] = {
     0,
     20,
     40,
-}; 
+    20,
+    40,
+    10,
+    90,
+};
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
 static const uint16_t speed_max = 100;
 
@@ -48,17 +53,23 @@ void setup() {
     pinMode(LIVE_PIN, OUTPUT);
 }
 
-void loop() {
-  static int pos = 0;
-
+void set_position(int pos) {
   const auto speed = speeds[pos];
-  
+
   const int pixels = map(speed, 0, speed_max, 0, DISPLAY_LEDS);
   barGraph(&strip, pixels, 0, ON_COLOR, OFF_COLOR);
   strip.show();
-  
+  const int servo_pos = map(speed, 0, speed_max, 0, 180); 
+  servo.write(servo_pos);
+
   const int pwm = map(speed, 0, speed_max, 0, 1024);
   analogWrite(LIVE_PIN, pwm);
+}
+
+void loop() {
+  static int pos = 0;
+ 
+  set_position(pos);
 
   if (pos > speeds_length) {
     pos = 0;
