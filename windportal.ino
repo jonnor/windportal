@@ -1,4 +1,9 @@
 
+#include "./data.h"
+
+static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
+static const uint16_t speed_max = 1024;
+
 #include <Adafruit_NeoPixel.h>
 #include <Servo.h>
 
@@ -29,35 +34,21 @@ Servo servo;
 const auto ON_COLOR = strip.Color(255,0,0);
 const auto OFF_COLOR = strip.Color(5,5,5);
 
-// TODO: generate
-static const uint16_t speeds[] = {
-    0,
-    1,
-    10,
-    20,
-    40,
-    70,
-    90,
-    100,
-    0,
-    0,
-};
-static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
-static const uint16_t speed_max = 100;
 
-void set_position(int pos) {
+void set_position(int pos, bool motor_enable) {
   //Serial.print("pos=");
   //Serial.println(pos);
   
   const auto speed = speeds[pos];
 
-  digitalWrite(MOTOR_ENABLE_PIN, speed > 0);
+  const bool motor_on = motor_enable and (speed > 0);
+  digitalWrite(MOTOR_ENABLE_PIN, motor_on);
 
   const int pixels = map(speed, 0, speed_max, 0, DISPLAY_LEDS);
   barGraph(&strip, pixels, 0, ON_COLOR, OFF_COLOR);
   strip.show();
-  const int servo_pos = map(speed, 0, speed_max, 0, 180); 
-  servo.write(servo_pos);
+  const int servo_pos = map(speed, 0, speed_max, 0, 180);
+  servo.write((motor_enable) ? servo_pos : 0);
 
   const int pwm = map(speed, 0, speed_max, 0, 1024);
   analogWrite(LIVE_PIN, pwm);
@@ -79,20 +70,22 @@ void setup() {
 void loop() {
   static int pos = 0;
   static bool was_pressed = true;
-  static bool playing = false;
+  static bool motor_enabled = false;
   
   const bool pressed = !digitalRead(TRIGGER_PIN);
-  if (playing or (pressed and not was_pressed)) {
-      playing = true;
-    
-      if (pos == speeds_length) {
-        pos = 0;
-        playing = false;
-      }
-      set_position(pos);
-      pos += 1;
-      delay(1000);
+  if ((pressed and not was_pressed)) {
+      motor_enabled = true;
   }
+
+  if (pos == speeds_length) {
+    pos = 0;
+    motor_enabled = false;
+  }
+
+  set_position(pos, motor_enabled);
+  pos += 1;
+  delay(100);
+  
   was_pressed = pressed;
 }
 
