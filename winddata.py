@@ -33,70 +33,55 @@ def yr_hourly_forecast(lat, lon):
     
     path = 'forecast/tabular/time'
     return [ extract(e) for e in root.findall(path) ]
-    
-
-def download_current(api_token, **kwargs):
-    base = "https://api.openweathermap.org/data/2.5/weather"
-    args = kwargs
-    args['appId'] = api_token
-    url = base + '?' + urllib.parse.urlencode(kwargs)
-    print('GET:', url)
-    d = urllib.request.urlopen(url).read()
-    data = json.loads(d)
-    return data
-
-def download_forecast(api_token, **kwargs):
-    base = "https://api.openweathermap.org/data/2.5/forecast"
-    args = kwargs
-    args['appId'] = api_token
-    url = base + '?' + urllib.parse.urlencode(kwargs)
-    print('GET:', url)
-    d = urllib.request.urlopen(url).read()
-    data = json.loads(d)
-    return data
 
 
-def extract_current_wind(weather):
-    assert len(weather['weather']) == 1, 'multiple weather reports'
-    flat = {
-        'windspeed': weather['wind'].get('speed'),
-        'winddirection': weather['wind'].get('deg'),
-        'timestamp': weather['dt'],
-        'longitude': weather['coord']['lon'],
-        'latitude': weather['coord']['lat']
-    }
-    flat['isotime'] = datetime.datetime.fromtimestamp(flat['timestamp']).isoformat()
-    return flat
 
-def extract_wind_forecast(forecast):
-    def extract(weather):
-        flat = {
-            'windspeed': weather['wind'].get('speed'),
-            'winddirection': weather['wind'].get('deg'),
-            'timestamp': weather['dt'],
-            'longitude': forecast['city']['coord']['lon'],
-            'latitude': forecast['city']['coord']['lat']
-        }
-        return flat
-    return [ extract(w) for w in forecast['list'] ]
+def map_linear(val, inmin=0, inmax=1.0, outmin=0, outmax=1.0):
+    return (val-inmin) * (outmax-outmin) / (inmax-inmin) + outmin
+
+def wind_sequence(windspeeds):
+    windspeeds = windspeeds[:24] # FIXME: select proper range
+    assert len(windspeeds) == 24, len(windspeeds) 
+
+    events = []
+    for speed in windspeeds:
+        v = map_linear(speed, 0.0, 32.7, 0, 32767) # beauforth_max to int16_max
+        events.append(v)
+
+    return events
+
+def gen_c(vals, name='wind_data', ctype='int16_t'):
+    numbers = [ str(int(v)) for v in vals ]
+    r = "static const {} {}[] = {{ {} }};".format(ctype, name, ','.join(numbers))
+    return r
+
+def output_data(events):
+    vals = [ v for v in events ]
+    t = gen_c(vals, name='speeds')
+    filename = 'data.h'
+    with open(filename, 'w') as f:
+        f.write(t)    
+    return filename
+
+def dump_raw(location_name, winds):
+    start = datetime.datetime.now().isoformat()
+    filename = 'data/{}.{}.csv'.format(location_name, start)
+
+    fields = ['isotime', 'timestamp', 'windspeed', 'winddirection', 'latitude', 'longitude']
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        for wind in winds: 
+            writer.writerow(wind)
+
+        csvfile.flush()
+
+    return filename
 
 def main():
-    token = os.environ.get('OPENWEATHERMAP_TOKEN', None)
-    if not token:
-        raise ValueError("Missing API token")
-
     location_name = 'hywind-park'
     if len(sys.argv) > 1:
         location_name = sys.argv[1]
 
-    timeinterval = 10*60
-    if len(sys.argv) > 2:
-        timeinterval = int(sys.argv[2])    
-
-    start = datetime.datetime.now().isoformat()
-    filename = 'data/{}.{}.csv'.format(location_name, start)
-
-    # From email
     locations = {
         'hywind-park': { 'lat': 57.484, 'lon': -1.363 },
         'old-st-peters-church': { 'lat': 57.504102, 'lon': -1.789955 },
@@ -106,21 +91,15 @@ def main():
     }
 
     location_info = locations[location_name]
+    data = yr_hourly_forecast(**location_info)
+    winds = [ w['windspeed'] for w in data ]
+    #dump_raw(location_name, winds)
 
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=['isotime', 'timestamp', 'windspeed', 'winddirection', 'latitude', 'longitude'])
+    s = wind_sequence(winds)
 
-        print('writing to:', filename)
+    filename = output_data(s)
+    print('written to:', filename)
 
-        params = location_info
-
-        winds = yr_hourly_forecast(**params)
-        print('info:', json.dumps(winds))
-
-        for wind in winds: 
-            writer.writerow(wind)
-
-        csvfile.flush() # ensure data hits disk regularly
 
 
 if __name__ == '__main__':

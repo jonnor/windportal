@@ -2,7 +2,7 @@
 #include "./data.h"
 
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
-static const uint16_t speed_max = 512;
+static const int16_t speed_max = 32767;
 
 #include <Adafruit_NeoPixel.h>
 #include <Servo.h>
@@ -44,10 +44,10 @@ void set_position(int pos, bool motor_enable) {
   const bool motor_on = motor_enable and (speed > 0);
   digitalWrite(MOTOR_ENABLE_PIN, motor_on);
 
-  const int pixels = map(speed, 0, speed_max, 0, DISPLAY_LEDS);
+  const int pixels = constrain(map(speed, 0, speed_max, 0, DISPLAY_LEDS), 0, DISPLAY_LEDS);
   barGraph(&strip, pixels, 0, ON_COLOR, OFF_COLOR);
   strip.show();
-  const int servo_pos = map(speed, 0, speed_max, 0, 180);
+  const int servo_pos = constrain(map(speed, 0, speed_max, 0, 180), 0, 180);
   servo.write((motor_enable) ? servo_pos : 0);
 
   const int pwm = map(speed, 0, speed_max, 0, 1024);
