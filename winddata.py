@@ -7,8 +7,9 @@ import datetime
 import sys
 import csv
 import xml.etree.ElementTree
+import math
 
-import gevent
+import colorsys
 
 
 # http://om.yr.no/verdata/vilkar/
@@ -18,7 +19,6 @@ def yr_hourly_forecast(lat, lon):
     url = "https://www.yr.no/place/Ocean/{}_{}/forecast_hour_by_hour.xml".format(lat, lon)
     d = urllib.request.urlopen(url).read()
     root = xml.etree.ElementTree.fromstring(d)
-    print('r', root)
 
     def extract(e):
         e.find('windDirection')
@@ -77,6 +77,47 @@ def dump_raw(location_name, winds):
 
     return filename
 
+def display_colors(brightness=1.0):
+    stops = 24
+
+    rgb_values = []
+
+    for step in range(1, stops+1):
+        hue = 0.5 - map_linear(step, 1, stops, 0, 0.5)
+        #print('hue', hue)
+        #hue = hue % 360
+        sat = 0.8
+        val = 1.0
+        if step <= 2:
+            sat *= 0.25
+        if step <= 4:
+            sat *= 0.75
+        hsv = hue, sat, val
+        rgb = colorsys.hsv_to_rgb(*hsv)
+        rgb = [ ch*brightness for ch in rgb ]
+        rgb_values.append(rgb)
+
+    def asuint32(rgb):
+        r,g,b = rgb
+        r = int(r*255)
+        g = int(g*255)
+        b = int(b*255)
+        #print('rgb', r, g, b)
+        return (r<<16) + (g<<8) + (b<<0)
+
+    rgb_ints = [ asuint32(rgb) for rgb in rgb_values ]
+    assert len(rgb_ints) == stops
+    return rgb_ints
+
+def write_colors():
+    on = gen_c(display_colors(brightness=1.0), name='on_colors', ctype='uint32_t')
+    off = gen_c(display_colors(brightness=0.12), name='off_colors', ctype='uint32_t')
+
+    with open('colors.h', 'w') as f:
+        f.write(on + '\n\n' + off)
+    print('wrote colors.h')
+
+
 def main():
     location_name = 'hywind-park'
     if len(sys.argv) > 1:
@@ -100,6 +141,7 @@ def main():
     filename = output_data(s)
     print('written to:', filename)
 
+    write_colors()
 
 
 if __name__ == '__main__':

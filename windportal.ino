@@ -1,5 +1,6 @@
 
 #include "./data.h"
+#include "./colors.h"
 
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
 static const int16_t speed_max = 32767;
@@ -9,13 +10,15 @@ static const int16_t speed_max = 32767;
 
 // Fill the dots one after the other with a color
 void barGraph(Adafruit_NeoPixel *strip,
-    uint16_t position, uint8_t offset, uint32_t oncolor, uint32_t offcolor) {
+    uint16_t position, uint8_t offset) {
 
     for(uint16_t i=offset; i<strip->numPixels(); i++) {
+        const uint32_t offcolor = off_colors[i];
         strip->setPixelColor(i, offcolor);
     }
     const uint16_t stop = min(offset+position, strip->numPixels());
     for(uint16_t i=offset; i<stop; i++) {
+        const uint32_t oncolor = on_colors[i];
         strip->setPixelColor(i, oncolor);
     }
 }
@@ -28,11 +31,11 @@ const int8_t LIVE_PIN = 11;
 const int8_t TRIGGER_PIN = 7;
 const int8_t MOTOR_ENABLE_PIN = 5;
 
+const int durationMillis = 24000;
+const int timestepMillis = durationMillis / speeds_length;
+
 Adafruit_NeoPixel strip(DISPLAY_LEDS, DISPLAY_PIN, NEO_GRB + NEO_KHZ800);
 Servo servo;
-
-const auto ON_COLOR = strip.Color(255,0,0);
-const auto OFF_COLOR = strip.Color(5,5,5);
 
 
 void set_position(int pos, bool motor_enable) {
@@ -45,12 +48,12 @@ void set_position(int pos, bool motor_enable) {
   digitalWrite(MOTOR_ENABLE_PIN, motor_on);
 
   const int pixels = constrain(map(speed, 0, speed_max, 0, DISPLAY_LEDS), 0, DISPLAY_LEDS);
-  barGraph(&strip, pixels, 0, ON_COLOR, OFF_COLOR);
+  barGraph(&strip, pixels, 0);
   strip.show();
   const int servo_pos = constrain(map(speed, 0, speed_max, 0, 180), 0, 180);
   servo.write((motor_enable) ? servo_pos : 0);
 
-  const int pwm = map(speed, 0, speed_max, 0, 1024);
+  const int pwm = constrain(map(speed, 0, speed_max, 0, 1023), 0, 1023);
   analogWrite(LIVE_PIN, pwm);
 }
 
@@ -84,7 +87,7 @@ void loop() {
 
   set_position(pos, motor_enabled);
   pos += 1;
-  delay(100);
+  delay(timestepMillis);
   
   was_pressed = pressed;
 }
