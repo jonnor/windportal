@@ -2,7 +2,7 @@
 #include "./data.h"
 
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
-static const uint16_t speed_max = 1024;
+static const uint16_t speed_max = 512;
 
 #include <Adafruit_NeoPixel.h>
 #include <Servo.h>
@@ -24,7 +24,7 @@ void barGraph(Adafruit_NeoPixel *strip,
 const int8_t SERVO_PIN = 9;
 const int8_t DISPLAY_PIN = 6;
 const int8_t DISPLAY_LEDS = 24;
-const int8_t LIVE_PIN = 13;
+const int8_t LIVE_PIN = 11;
 const int8_t TRIGGER_PIN = 7;
 const int8_t MOTOR_ENABLE_PIN = 5;
 
