@@ -40,8 +40,6 @@ def map_linear(val, inmin=0, inmax=1.0, outmin=0, outmax=1.0):
     return (val-inmin) * (outmax-outmin) / (inmax-inmin) + outmin
 
 def wind_sequence(windspeeds):
-    windspeeds = windspeeds[:24] # FIXME: select proper range
-    assert len(windspeeds) == 24, len(windspeeds) 
 
     events = []
     for speed in windspeeds:
@@ -133,8 +131,17 @@ def main():
 
     location_info = locations[location_name]
     data = yr_hourly_forecast(**location_info)
-    winds = [ w['windspeed'] for w in data ]
+    data = data[:24] # FIXME: select proper range
+    print('data', len(data), [d['windspeed'] for d in data ])
+
+    assert len(data) == 24, len(data)
+
+    start = [0.0] * 1
+    end = [0.0] * 2
+    winds = start + [ w['windspeed'] for w in data ]
+
     #dump_raw(location_name, winds)
+
 
     s = wind_sequence(winds)
 

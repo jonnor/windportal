@@ -77,6 +77,7 @@ void loop() {
   
   const bool pressed = !digitalRead(TRIGGER_PIN);
   if ((pressed and not was_pressed)) {
+      pos = 0;
       motor_enabled = true;
   }
 
