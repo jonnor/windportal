@@ -1,10 +1,9 @@
 INPORT=split.IN:speed
 
 # Liveness
-timer(Timer) -> at(ToggleBoolean) -> aliveled(DigitalWrite)
-'50' -> INTERVAL timer
+alivetimer(Timer) -> at(ToggleBoolean) -> aliveled(DigitalWrite)
+'500' -> INTERVAL alivetimer
 '13' -> PIN aliveled
-
 
 # Servo
 '9' -> PIN servo(ServoWrite)
@@ -13,7 +12,7 @@ timer(Timer) -> at(ToggleBoolean) -> aliveled(DigitalWrite)
 '0' -> PIN pot(AnalogRead)
 '11' -> PIN led(PwmWrite)
 
-#'100' -> INTERVAL timer(Timer) OUT -> TRIGGER pot
+'50' -> INTERVAL timer(Timer) OUT -> TRIGGER pot
 # FIXME: multiple timers doesnt work? neither pot nor aliveled updates
 # Might have been due to running out of memory?
 
@@ -24,11 +23,11 @@ split OUT2 -> mapServo(MapLinear) -> servo
 
 # Display
 '2' -> bargraph(LedBarGraph)
-split OUT3 -> bargraph
-#split OUT3 -> mapDisplay(MapLinear) -> bargraph
+#split OUT3 -> bargraph
+split OUT3 -> mapDisplay(MapLinear) -> bargraph
 
-#'0' -> INMIN mapDisplay, '1023' -> INMAX mapDisplay
-#'0' -> OUTMIN mapDisplay, '12' -> OUTMAX mapDisplay
+'0' -> INMIN mapDisplay, '1023' -> INMAX mapDisplay
+'0' -> OUTMIN mapDisplay, '12' -> OUTMAX mapDisplay
 
 '0' -> INMIN mapServo, '1023' -> INMAX mapServo
 '0' -> OUTMIN mapServo, '180' -> OUTMAX mapServo
