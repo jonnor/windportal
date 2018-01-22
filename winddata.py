@@ -115,6 +115,19 @@ def write_colors():
         f.write(on + '\n\n' + off)
     print('wrote colors.h')
 
+def write_beufort():
+    points = [0.3, 1.5, 3.3, 5.5, 8.0, 10.8, 13.9, 17.2, 20.7, 24.5, 28.4, 32.6]
+    outmax = 32767
+    inmax = 32.7
+    cpoints = int(map_linear(p), 0, inmax, 0, outmax) for p in points
+
+    bb = gen_c(display_colors(brightness=0.12), name='off_colors', ctype='uint32_t')
+
+    assert len(cpoints) == 12
+    with open('beuforth.h', 'w') as f:
+        f.write(bb)
+    print('wrote beuforth.h')
+    
 
 def main():
     location_name = 'hywind-park'
