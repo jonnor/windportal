@@ -4,3 +4,4 @@ node_modules/
 build/
 .ipynb_checkpoints/
 data/*.html
+*.fcstd1
