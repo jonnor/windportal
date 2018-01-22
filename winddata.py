@@ -119,14 +119,14 @@ def write_beufort():
     points = [0.3, 1.5, 3.3, 5.5, 8.0, 10.8, 13.9, 17.2, 20.7, 24.5, 28.4, 32.6]
     outmax = 32767
     inmax = 32.7
-    cpoints = int(map_linear(p), 0, inmax, 0, outmax) for p in points
+    cpoints = [int( (p/inmax) * outmax ) for p in points]
 
-    bb = gen_c(display_colors(brightness=0.12), name='off_colors', ctype='uint32_t')
+    bb = gen_c(cpoints, name='beufort_thresholds', ctype='uint16_t')
 
     assert len(cpoints) == 12
-    with open('beuforth.h', 'w') as f:
+    with open('beufort.h', 'w') as f:
         f.write(bb)
-    print('wrote beuforth.h')
+    print('wrote beufort.h')
     
 
 def main():
@@ -150,7 +150,7 @@ def main():
     assert len(data) == 24, len(data)
 
     start = [0.0] * 1
-    end = [0.0] * 2
+    end = [0.0] * 4
     winds = start + [ w['windspeed'] for w in data ]
 
     #dump_raw(location_name, winds)
@@ -162,6 +162,7 @@ def main():
     print('written to:', filename)
 
     write_colors()
+    write_beufort()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 
 #include "./data.h"
 #include "./colors.h"
+#include "./beufort.h"
 
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
 static const int16_t speed_max = 32767;
@@ -37,6 +38,14 @@ const int timestepMillis = durationMillis / speeds_length;
 Adafruit_NeoPixel strip(DISPLAY_LEDS, DISPLAY_PIN, NEO_GRB + NEO_KHZ800);
 Servo servo;
 
+int beufortScale(int16_t mps) {
+  for (int i=1; i<12; i++) {
+    if (mps > beufort_thresholds[i-1] && mps > beufort_thresholds[i]) {
+      return i;
+    }
+  }
+  return 0;
+}
 
 void set_position(int pos, bool motor_enable) {
   //Serial.print("pos=");
@@ -47,7 +56,7 @@ void set_position(int pos, bool motor_enable) {
   const bool motor_on = motor_enable and (speed > 0);
   digitalWrite(MOTOR_ENABLE_PIN, motor_on);
 
-  const int pixels = constrain(map(speed, 0, speed_max, 0, DISPLAY_LEDS), 0, DISPLAY_LEDS);
+  const int pixels = 2*beufortScale(speed);
   barGraph(&strip, pixels, 0);
   strip.show();
   const int servo_pos = constrain(map(speed, 0, speed_max, 0, 180), 0, 180);
