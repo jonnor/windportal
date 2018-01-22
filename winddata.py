@@ -1,3 +1,4 @@
+# coding=utf-8
 
 import urllib.request
 import urllib.parse
@@ -16,7 +17,7 @@ import colorsys
 # «Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and NRK» (engelsk).
 # Link to https://www.yr.no/place/Ocean/57.484_-1.363/
 def yr_hourly_forecast(lat, lon):
-    url = "https://www.yr.no/place/Ocean/{}_{}/forecast_hour_by_hour.xml".format(lat, lon)
+    url = "http://www.yr.no/place/Ocean/{}_{}/forecast_hour_by_hour.xml".format(lat, lon)
     d = urllib.request.urlopen(url).read()
     root = xml.etree.ElementTree.fromstring(d)
 
