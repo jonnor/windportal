@@ -1,7 +1,5 @@
 
 #include "./data.h"
-#include "./colors.h"
-#include "./beufort.h"
 
 static const size_t speeds_length = (sizeof(speeds)/sizeof(speeds[0]));
 static const int16_t speed_max = 32767;
