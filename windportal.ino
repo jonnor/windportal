@@ -40,7 +40,7 @@ Servo servo;
 
 int beufortScale(int16_t mps) {
   for (int i=1; i<12; i++) {
-    if (mps > beufort_thresholds[i-1] && mps > beufort_thresholds[i]) {
+    if (mps > beufort_thresholds[i-1] && mps < beufort_thresholds[i]) {
       return i;
     }
   }

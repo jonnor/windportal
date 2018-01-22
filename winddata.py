@@ -39,12 +39,20 @@ def yr_hourly_forecast(lat, lon):
 def map_linear(val, inmin=0, inmax=1.0, outmin=0, outmax=1.0):
     return (val-inmin) * (outmax-outmin) / (inmax-inmin) + outmin
 
-def wind_sequence(windspeeds):
+def wind_sequence(windspeeds, duration, oversampling):
 
+    sequence_length = oversampling*len(windspeeds)
+    fs = sequence_length / duration 
+    print('samplingrate', fs)
     events = []
-    for speed in windspeeds:
-        v = map_linear(speed, 0.0, 32.7, 0, 32767) # beauforth_max to int16_max
-        events.append(v)
+    for i in range(0, sequence_length):
+        speed = windspeeds[i//oversampling]
+        modrate = 0.5 # TODO: make random?
+        f = 0.2
+        mod = (1.0 + math.sin(2*math.pi*f*(i/fs)) ) / 2.0
+        #speed *= (modrate * mod)
+        out = map_linear(speed, 0.0, 32.7, 0, 32767) # beauforth_max to int16_max
+        events.append(out)
 
     return events
 
@@ -149,14 +157,16 @@ def main():
 
     assert len(data) == 24, len(data)
 
-    start = [0.0] * 1
-    end = [0.0] * 4
-    winds = start + [ w['windspeed'] for w in data ]
+    winds = [ w['windspeed'] for w in data ]
 
     #dump_raw(location_name, winds)
 
-
-    s = wind_sequence(winds)
+    duration = 24.0
+    oversampling = 12
+    seq = wind_sequence(winds, duration, oversampling)
+    start = [0.0] * 1 * oversampling
+    end = [0.0] * 5 * oversampling
+    s = start + seq + end
 
     filename = output_data(s)
     print('written to:', filename)
