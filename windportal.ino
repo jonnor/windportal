@@ -54,7 +54,7 @@ void set_position(int pos, bool motor_enable) {
   const bool motor_on = motor_enable and (speed > 0);
   digitalWrite(MOTOR_ENABLE_PIN, motor_on);
 
-  const int pixels = 2*beufortScale(speed);
+  const int pixels = 2*(1+beufortScale(speed));
   barGraph(&strip, pixels, 0);
   strip.show();
   const int servo_pos = constrain(map(speed, 0, speed_max, 0, 180), 0, 180);
