@@ -30,7 +30,7 @@ const int8_t LIVE_PIN = 11;
 const int8_t TRIGGER_PIN = 7;
 const int8_t MOTOR_ENABLE_PIN = 5;
 
-const int durationMillis = 24000;
+const int durationMillis = 12000;
 const int timestepMillis = durationMillis / speeds_length;
 
 Adafruit_NeoPixel strip(DISPLAY_LEDS, DISPLAY_PIN, NEO_GRB + NEO_KHZ800);
